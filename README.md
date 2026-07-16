@@ -1,6 +1,13 @@
 # PhantomDNS 👻
 
-A high-performance, DPI-bypassing tunneling protocol designed for extreme speed and ultimate stealth. Built from the ground up to evade intelligent firewalls while maintaining an ultra-low footprint.
+A high-performance, DPI-bypassing tunneling protocol designed for extreme speed and ultimate stealth. Built upon a powerful core, customized to evade intelligent firewalls while maintaining an ultra-low footprint.
+
+### 🏆 Credits & Acknowledgments
+
+* **Original Core Engine:** Deepest respect and full credit for the foundational architecture of this engine goes to the original master, **[Original Master's Name/Link]**.
+* **PhantomDNS Fork:** Forked, aggressively optimized, heavily customized (added Ghost Mode, X25519 Encryption, Active Chaffing), and maintained by **[Dr. A (DrAlanK)](https://github.com/DrAlanK)**.
+
+---
 
 ### 🚀 Key Features
 
@@ -8,8 +15,6 @@ A high-performance, DPI-bypassing tunneling protocol designed for extreme speed 
 * **Ghost Mode (DPI Evasion)**: Native 0x20 case-randomization mimicking and smart SNI/subdomain noise filters (Entropy Sanitizer).
 * **Active Chaffing**: Smart heartbeat system that fires fake `PONG` packets to keep UDP ports permanently alive and undetected.
 * **Military-Grade Encryption**: Secured with X25519 (Elliptic Curve Diffie-Hellman) Asymmetric Key Exchange and ChaCha20 symmetric ciphers.
-
----
 
 ### 📋 Prerequisites
 
