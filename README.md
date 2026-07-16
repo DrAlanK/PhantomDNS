@@ -23,6 +23,7 @@ For Ubuntu/Debian:
 ```bash
 sudo apt update
 sudo apt install git golang -y
+```
 ⚙️ Configuration
 Before running the installer, configure your routes and users.
 Edit the JSON configuration file located at internal/users.json (or your main config file) to set up your domain, passwords, and MTU limits.
@@ -30,37 +31,44 @@ Edit the JSON configuration file located at internal/users.json (or your main co
 ⚡ Installation (Build from Source)
 Clone the repository and run the automated installation script. This script will forcefully free Port 53, configure firewall rules, apply ultimate kernel tuning (sysctl), compile the Go source code, and set up a systemd background service.
 
-Bash
+```bash
 # 1. Clone the repository
 git clone [https://github.com/DrAlanK/PhantomDNS.git](https://github.com/DrAlanK/PhantomDNS.git)
-cd PhantomDNS
+cd PhantomDNS```
 
+```bash
 # 2. Make the installer executable
-chmod +x server_linux_install.sh
+chmod +x server_linux_install.sh```
 
+```bash
 # 3. Run the installer as root
-sudo ./server_linux_install.sh
+sudo ./server_linux_install.sh```
+
+
 🛠️ Service Management
 Once installed, PhantomDNS runs automatically in the background. Use the following commands to manage the server:
 
 Check Service Status:
 
-Bash
-sudo systemctl status phantomdns
-View Live Server Logs:
+```Bash
+sudo systemctl status phantomdns```
 
-Bash
-sudo journalctl -u phantomdns -f
+View Live Server Logs:
+```Bash
+sudo journalctl -u phantomdns -f```
+
 Restart the Server (Use this after changing configs):
 
-Bash
-sudo systemctl restart phantomdns
+```bash
+sudo systemctl restart phantomdns```
+
 Stop the Server:
 
-Bash
-sudo systemctl stop phantomdns
+```bash
+sudo systemctl stop phantomdns```
+
 🗑️ Uninstallation
 To completely remove the service, binaries, and kernel limits from your system, simply run the installer with the -u or --uninstall flag:
 
-Bash
-sudo ./server_linux_install.sh -u
+```bash
+sudo ./server_linux_install.sh -u```
