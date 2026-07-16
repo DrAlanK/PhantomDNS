@@ -1,0 +1,14 @@
+{
+  "routes": {
+    "vip.phantom.com": {
+      "password": "secret_family_pass",
+      "mtu": 1200,
+      "tag": "family_tunnel"
+    },
+    "free.phantom.com": {
+      "password": "public_test_pass",
+      "mtu": 800,
+      "tag": "public_tunnel"
+    }
+  }
+}
