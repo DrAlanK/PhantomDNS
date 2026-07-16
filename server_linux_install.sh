@@ -50,14 +50,14 @@ if [[ "$ACTION" == "uninstall" ]]; then
 fi
 
 log_header "Preparing Environment"
-log_info "Installing dependencies (Golang has been removed!)..."
+log_info "Installing dependencies..."
 if command -v apt-get >/dev/null 2>&1; then
   apt-get update -y >/dev/null
-  apt-get install -y lsof net-tools curl iptables git >/dev/null
+  apt-get install -y lsof net-tools curl iptables git wireguard-tools >/dev/null
 elif command -v dnf >/dev/null 2>&1; then
-  dnf -y install lsof net-tools curl iptables git >/dev/null
+  dnf -y install lsof net-tools curl iptables git wireguard-tools >/dev/null
 elif command -v yum >/dev/null 2>&1; then
-  yum -y install lsof net-tools curl iptables git >/dev/null
+  yum -y install lsof net-tools curl iptables git wireguard-tools >/dev/null
 fi
 log_success "System tools are ready."
 
@@ -114,6 +114,47 @@ fi
 cd "$INSTALL_DIR"
 chmod +x phantomdns-server
 
+# ==========================================
+# ⚡ INTERACTIVE CONFIGURATION (FAMILY SCENARIO)
+# ==========================================
+log_header "Interactive Configuration (Private Tunnel)"
+echo -e "${YELLOW}Let's set up your private server endpoint.${NC}"
+while true; do
+  read -p "Enter your Server Domain or IP (e.g., api.mydomain.com): " SERVER_ADDRESS
+  if [[ -n "$SERVER_ADDRESS" ]]; then
+    break
+  else
+    echo -e "${RED}[!] Address cannot be empty. Please try again.${NC}"
+  fi
+done
+
+log_info "Generating military-grade X25519 Encryption Keys..."
+if ! command -v wg >/dev/null 2>&1; then
+  log_error "wireguard-tools is missing! Cannot generate keys."
+fi
+SERVER_PRIV=$(wg genkey)
+SERVER_PUB=$(echo "$SERVER_PRIV" | wg pubkey)
+log_success "Keys generated successfully."
+
+log_info "Building and saving users.json..."
+mkdir -p "$INSTALL_DIR/internal"
+cat <<EOF > "$INSTALL_DIR/internal/users.json"
+{
+  "server_address": "$SERVER_ADDRESS",
+  "private_key": "$SERVER_PRIV",
+  "public_key": "$SERVER_PUB",
+  "mtu": 1300,
+  "users": [
+    {
+      "uuid": "family-private-user-01",
+      "status": "active"
+    }
+  ]
+}
+EOF
+log_success "Configuration saved securely."
+# ==========================================
+
 log_info "Creating Systemd service..."
 cat <<EOF > /etc/systemd/system/phantomdns.service
 [Unit]
@@ -138,10 +179,13 @@ systemctl enable phantomdns.service >/dev/null 2>&1
 systemctl restart phantomdns.service
 
 if systemctl is-active --quiet phantomdns; then
-  log_success "PhantomDNS is running in the background."
   echo -e "\n${CYAN}======================================================${NC}"
   echo -e " ${GREEN}${BOLD}       INSTALLATION COMPLETED SUCCESSFULLY!${NC}"
   echo -e "${CYAN}======================================================${NC}"
+  echo -e "${YELLOW}[+] Server Address :${NC} $SERVER_ADDRESS"
+  echo -e "${YELLOW}[+] Public Key     :${NC} $SERVER_PUB"
+  echo -e "${YELLOW}[!] Private Key    :${NC} (Saved securely in $INSTALL_DIR/internal/users.json)"
+  echo -e "\n${BOLD}Share the Server Address and Public Key with your clients!${NC}\n"
 else
   log_error "Service failed to start. Run 'journalctl -u phantomdns -f' for details."
 fi
