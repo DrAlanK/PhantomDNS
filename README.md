@@ -4,7 +4,7 @@ A high-performance, DPI-bypassing tunneling protocol designed for extreme speed 
 
 ### 🏆 Credits & Acknowledgments
 
-* **Original Core Engine:** Deepest respect and full credit for the foundational architecture of this engine goes to the original master, **[Original Master's Name/Link]**.
+* **Original Core Engine:** Deepest respect and full credit for the foundational architecture of this engine goes to the original master, **[masterking32 / MasterDnsVPN](https://github.com/masterking32/MasterDnsVPN)**.
 * **PhantomDNS Fork:** Forked, aggressively optimized, heavily customized (added Ghost Mode, X25519 Encryption, Active Chaffing), and maintained by **[Dr. A (DrAlanK)](https://github.com/DrAlanK)**.
 
 ---
