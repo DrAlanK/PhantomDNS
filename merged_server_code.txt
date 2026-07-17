@@ -1,3 +1,7 @@
+// ============================================================
+// 📁 File: cmd/server/main.go
+// ============================================================
+
 // ==============================================================================
 // phantomdns
 // Author: DrAlanK
@@ -19,7 +23,6 @@ import (
 
 	"phantomdns-go/internal/config"
 	"phantomdns-go/internal/logger"
-	"phantomdns-go/internal/router" // 👈 پکیج روتر برای سیستم مدیریت کاربران اضافه شد
 	"phantomdns-go/internal/runtimepath"
 	"phantomdns-go/internal/security"
 	UDPServer "phantomdns-go/internal/udpserver"
@@ -42,22 +45,12 @@ func main() {
 	versionFlag := flag.Bool("version", false, "Print version and exit")
 	genKeyFlag := flag.Bool("genkey", false, "Generate encryption key and exit")
 	nowaitFlag := flag.Bool("nowait", false, "Do not wait for input on exit (useful for scripting)")
-	
-	// 👈 فلگ جدید برای ورود به محیط تعاملی مدیریت کاربران
-	manageUsersFlag := flag.Bool("users", false, "Open interactive user management CLI")
-
 	configFlags, err := config.NewServerConfigFlagBinder(flag.CommandLine)
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "Server flag setup failed: %v\n", err)
 		os.Exit(2)
 	}
 	flag.Parse()
-
-	// 👈 اگر سرور با فلگ -users اجرا شد، منیجر رو باز کن و بعد خارج شو
-	if *manageUsersFlag {
-		router.RunInteractiveManager("/etc/phantomdns/users.json")
-		return
-	}
 
 	if *versionFlag {
 		fmt.Printf("phantomdns Server Version: %s\n", version.GetVersion())
@@ -209,3 +202,6 @@ func main() {
 
 	log.Infof("\U0001F6D1 <yellow>Server Stopped</yellow>")
 }
+
+
+
