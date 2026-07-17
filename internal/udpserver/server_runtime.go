@@ -13,7 +13,8 @@ import (
 	"errors"
 	"net"
 	"sync"
-	"syscall" // 🚀 ایمپورت سیستم‌کال برای ارتباط مستقیم با هسته لینوکس
+	"strings"
+	"syscall"
 	"time"
 
 	"phantomdns-go/internal/logger"
@@ -247,21 +248,36 @@ func (s *Server) dnsWorker(ctx context.Context, conn *net.UDPConn, reqCh <-chan 
 			// ==============================================================================
 			// 🚀 THE GATEKEEPER (PhantomDNS Router Injection)
 			// ==============================================================================
-			domain := router.ExtractDomain(packetData)
-			if domain == "" {
+			fullDomain := router.ExtractDomain(packetData)
+			if fullDomain == "" {
 				s.packetPool.Put(req.buf)
 				continue
 			}
 
-			_, exists := s.configManager.GetRoute(domain)
+			// استخراج دامنه پایه (چون کلاینت دیتای رمزنگاری شده رو به صورت ساب‌دامین می‌فرسته)
+			var baseDomain string
+			for _, d := range s.cfg.Domain {
+				if fullDomain == d || strings.HasSuffix(fullDomain, "."+d) {
+					baseDomain = d
+					break
+				}
+			}
+
+			if baseDomain == "" {
+				s.packetPool.Put(req.buf)
+				continue
+			}
+
+			// بررسی وجود کاربر در users.json بر اساس دامنه پایه
+			_, exists := s.configManager.GetRoute(baseDomain)
 			if !exists {
 				s.packetPool.Put(req.buf)
 				continue
 			}
 
-			serverTxID, allocated := s.txMuxer.Allocate(packetData, req.addr, domain)
+			serverTxID, allocated := s.txMuxer.Allocate(packetData, req.addr, baseDomain)
 			if !allocated {
-				s.log.Warnf("ظرفیت TXID برای کاربر %s پر شده است", domain)
+				s.log.Warnf("ظرفیت TXID برای کاربر %s پر شده است", baseDomain)
 				s.packetPool.Put(req.buf)
 				continue
 			}

@@ -10,6 +10,7 @@ package udpserver
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	DnsParser "phantomdns-go/internal/dnsparser"
@@ -57,14 +58,26 @@ func (s *Server) handleTunnelCandidate(packet []byte, parsed DnsParser.LitePacke
 	// ==============================================================================
 	// 🚀 DYNAMIC CODEC INJECTION (PhantomDNS Gatekeeper)
 	// ==============================================================================
-	// ما از configManager می‌خواهیم که موتور رمزنگاری اختصاصیِ این کاربر را به ما بدهد
-	userCodec := s.configManager.GetCodec(decision.RequestName)
+	
+	// ۱. استخراج دامنه پایه برای جستجو در users.json
+	var baseDomain string
+	for _, d := range s.cfg.Domain {
+		if decision.RequestName == d || strings.HasSuffix(decision.RequestName, "."+d) {
+			baseDomain = d
+			break
+		}
+	}
+
+	// ۲. دریافت کلید رمزنگاری اختصاصی کاربر
+	userCodec := s.configManager.GetCodec(baseDomain)
 	if userCodec == nil {
-		// اگر کاربر مسدود شده بود یا کانفیگش پیدا نشد، پکت را باطل کن
+		if s.log != nil {
+			s.log.Debugf("❌ Drop: No user config found for base domain: %s", baseDomain)
+		}
 		return s.buildNoDataResponseLiteLogged(packet, parsed, "unauthorized-user-tunnel")
 	}
 
-	// حالا به جای s.codec، پکت را با کلید اختصاصی خودِ کاربر (userCodec) باز می‌کنیم!
+	// ۳. بازگشایی پکت با کلید اختصاصی
 	vpnPacket, err := VpnProto.ParseInflatedFromLabels(decision.Labels, userCodec)
 	// ==============================================================================
 
